@@ -1,0 +1,55 @@
+model:
+  base_learning_rate: 4.5e-06
+  target: taming.models.clip_transformer.CLIPCond
+  params:
+    pkeep: 0.5
+    transformer_config:
+      target: taming.modules.transformer.mingpt.GPT
+      params:
+        vocab_size: 4096
+        block_size: 333  # = 256 + 77 = dim(vqgan_latent_space,16x16) + CLIP embedding dimensions)
+        n_layer: 2 #reduced from 36 to fit a GTX 1650
+        n_head: 16
+        n_embd: 512
+        embd_pdrop: 0.1
+        resid_pdrop: 0.1
+        attn_pdrop: 0.1
+    first_stage_config:
+      target: taming.models.vqgan.VQModel
+      params:
+        ckpt_path: logs/2022-03-11T21-34-38_custom_vqgan/backup-checkpoints/epoch=28-step=204942.ckpt
+        embed_dim: 256
+        n_embed: 1024
+        ddconfig:
+          double_z: False
+          z_channels: 256
+          resolution: 256
+          in_channels: 3
+          out_ch: 3
+          ch: 128
+          ch_mult: [ 1,1,2,2,4]  # num_down = len(ch_mult)-1
+          num_res_blocks: 2
+          attn_resolutions: [16]
+          dropout: 0.0
+        lossconfig:
+          target: taming.modules.losses.DummyLoss
+    cond_stage_config:
+      target: taming.models.dummy_cond_stage.DummyCondStage
+      params:
+        conditional_key: objects_bbox
+
+data:
+  target: main.DataModuleFromConfig
+  params:
+    batch_size: 8
+    num_workers: 6
+    train:
+      target: taming.data.custom.CustomTrain
+      params:
+        training_images_list_file: train.txt
+        size: 64
+    validation:
+      target: taming.data.custom.CustomTest
+      params:
+        test_images_list_file: test.txt
+        size: 64
