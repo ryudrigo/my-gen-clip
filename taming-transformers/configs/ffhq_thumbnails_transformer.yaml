@@ -3,12 +3,13 @@ model:
   target: taming.models.clip_transformer.CLIPCond
   params:
     pkeep: 0.5
+    ckpt_path: logs/2022-03-18T16-10-49_ffhq_thumbnails_transformer/testtube/version_0/checkpoints/epoch=12-step=1468.ckpt
     transformer_config:
       target: taming.modules.transformer.mingpt.GPT
       params:
-        vocab_size: 4096
-        block_size: 333  # = 256 + 77 = dim(vqgan_latent_space,16x16) + CLIP embedding dimensions)
-        n_layer: 2 #reduced from 36 to fit a GTX 1650
+        vocab_size: 1024
+        block_size: 512
+        n_layer: 24
         n_head: 16
         n_embd: 512
         embd_pdrop: 0.1
@@ -17,13 +18,13 @@ model:
     first_stage_config:
       target: taming.models.vqgan.VQModel
       params:
-        ckpt_path: logs/2022-03-11T21-34-38_custom_vqgan/backup-checkpoints/epoch=27-step=197875.ckpt
+        ckpt_path: logs/2022-03-18T11-15-13_custom_vqgan/testtube/version_0/checkpoints/epoch=22-step=10372.ckpt
         embed_dim: 256
         n_embed: 1024
         ddconfig:
           double_z: False
           z_channels: 256
-          resolution: 256
+          resolution: 128
           in_channels: 3
           out_ch: 3
           ch: 128
@@ -41,8 +42,8 @@ model:
 data:
   target: main.DataModuleFromConfig
   params:
-    batch_size: 8
-    num_workers: 6
+    batch_size: 512
+    num_workers: 8
     train:
       target: taming.data.custom.CustomTrain
       params:
