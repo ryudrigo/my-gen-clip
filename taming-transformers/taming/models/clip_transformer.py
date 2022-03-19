@@ -173,6 +173,9 @@ class CLIPCond(pl.LightningModule):
             index.reshape(-1), shape=bhwc)
         x = self.first_stage_model.decode(quant_z)
         return x
+    
+    
+        
 
     '''
     @torch.no_grad()
@@ -281,8 +284,14 @@ class CLIPCond(pl.LightningModule):
         x = batch['image']
         x = torch.permute(x, (0, 3, 1, 2))
         logits, target = self(x)
-        loss = F.cross_entropy(logits.reshape(-1, logits.size(-1)), target.reshape(-1))
-        return loss
+        original_c = self.encode_imgs_to_c(x)
+        new_x = decode_to_img(logits, x.shape)
+        new_c = self.encode_imgs_to_c(new_x)
+        loss_clip = F.cosine_embedding_loss(original_c, new_c)
+        loss_transformer = F.cross_entropy(logits.reshape(-1, logits.size(-1)), target.reshape(-1))
+        clip_factor=0.2 #following CLIP-GEN paper
+        return loss_clip*clip_factor + loss_transformer
+        
 
     def training_step(self, batch, batch_idx):
         loss = self.shared_step(batch, batch_idx)

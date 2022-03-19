@@ -1,0 +1,29 @@
+from omegaconf.omegaconf import OmegaConf
+from taming.models.clip_transformer import CLIPCond
+from main import instantiate_from_config
+import torch, glob
+from omegaconf import OmegaConf
+import clip
+import torch.nn.functional as F
+from torchvision.transforms import ToPILImage
+
+config = OmegaConf.load('configs/ffhq_thumbnails_transformer.yaml')
+clip_cond = instantiate_from_config(config.model).cuda()
+
+steps = 8*8
+prompt="obama"
+x = torch.zeros((1,1), dtype = torch.long).cuda()
+x_cond = clip_cond.encode_text_to_c(prompt)
+x_cond = x_cond.unsqueeze(dim=1)
+for k in range(steps):
+  logits, _ = clip_cond.transformer(x, embeddings=x_cond)
+  logits = logits[:,-1,:]
+  probs = F.softmax(logits, dim=-1)
+  ix = torch.multinomial(probs, num_samples=1)
+  # append to the sequence and continue
+  x = torch.cat((x, ix), dim=1)
+  # cut off conditioning
+x = x[:, 1:]
+img = clip_cond.decode_to_img(x, (1,256,8,8))
+img = ToPILImage()(img[0])
+img.save('abacate')

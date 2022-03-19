@@ -33,7 +33,7 @@ class CLIPCond(pl.LightningModule):
         permuter_config = {"target": "taming.modules.transformer.permuter.Identity"}
         self.permuter = instantiate_from_config(config=permuter_config)
         self.transformer = instantiate_from_config(config=transformer_config)
-        self.clip_model, self.clip_preprocess = clip.load("ViT-B/16")
+        self.clip_model, self.clip_preprocess = clip.load("ViT-B/32")
         if ckpt_path is not None:
             self.init_from_ckpt(ckpt_path, ignore_keys=ignore_keys)
         self.downsample_cond_size = downsample_cond_size
@@ -64,7 +64,7 @@ class CLIPCond(pl.LightningModule):
             clip_vectors = self.encode_imgs_to_c(imgs)
         else:
             clip_vectors = self.encode_text_to_c(text)
-        clip_vectors = clip_vectors.unsqueeze(dim=-1)
+        clip_vectors = clip_vectors.unsqueeze(dim=1)
         
         if text is None and self.pkeep < 1.0:
             mask = torch.bernoulli(self.pkeep*torch.ones(z_indices.shape,
