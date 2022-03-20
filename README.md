@@ -23,3 +23,7 @@ The config file I used to train the first stage is configs/custom_vqgan.yaml For
 Please note that training with those configurations requires the ffhq-thumbnails dataset, which is not included in this repo. You can use other datasets, further instructions can be found at 
 
 https://github.com/CompVis/taming-transformers#training-on-custom-data
+
+## Results
+
+I don't have the resources to train for long at the moment, but loss decreases as expected
