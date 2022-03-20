@@ -1,6 +1,6 @@
 # my-gen-clip
 
-In-progress implementation of GEN-CLIP
+In-progress implementation of GEN-CLIP. Most work was on the taming-transformers/taming/models/clip_transfomer.py script
 
 ## Installation
 
