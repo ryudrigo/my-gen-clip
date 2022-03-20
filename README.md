@@ -12,9 +12,9 @@ Create a conda enviroment based on environment.yaml file
 
 `conda activate vqgen`
 
-## Usage
+## Training
 
-The basic usage goes like this (futher instructions in the taming-transformers repo README)
+The basic training goes like this (futher instructions in the taming-transformers repo README)
 
 `python main.py --base configs/ffhq_thumbnails_transformer.yaml -t True --gpus 0,`
 
@@ -24,6 +24,12 @@ Please note that training with those configurations requires the ffhq-thumbnails
 
 https://github.com/CompVis/taming-transformers#training-on-custom-data
 
-## Results
+For use with pretrained models, change the ckpt properties in the configuration files
 
-I don't have the resources to train for long at the moment, but loss decreases as expected
+## Usage
+
+To generate images from text, check the script sample_clip.py as a starting point
+
+## Weights
+
+I don't have the resources to train for long at the moment, so unfortunately no weights are provided
